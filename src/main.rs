@@ -28,6 +28,7 @@ fn main() {
     let u = u;
 
     // Compute <_U
+    let order_u;
     {
         let mut u_s = u
             .iter()
@@ -42,6 +43,7 @@ fn main() {
                 .collect::<Vec<_>>()
                 .join(" < ")
         );
+        order_u = u_s.into_iter().map(|(_, i)| i).collect::<Vec<_>>();
     }
 
     // Compute C
@@ -93,6 +95,46 @@ fn main() {
         println!("\nS:");
         for (i, s) in ans_s.iter().enumerate() {
             println!("{i}: {s:?}")
+        }
+    }
+    let ans_s = ans_s;
+
+    // Compute pi(S)
+    let mut pi_i = Vec::with_capacity(ans_s.len());
+    {
+        println!();
+        for (i, s) in ans_s.iter().enumerate() {
+            let mut pi = Vec::new();
+            print!("π (S_{i}): ");
+            for i in &order_u {
+                if s.contains(&u[*i]) {
+                    pi.push(*i);
+                    print!("{i} ");
+                }
+            }
+            pi_i.push(pi);
+            println!()
+        }
+    }
+    let pi_i = pi_i;
+
+    // Compute P_S*(S) + cx_S*(S)
+    {
+        println!("\ncxs:");
+        for (i, s) in ans_s.iter().enumerate() {
+            for j in 0..ans_s.len() {
+                if i == j {
+                    continue;
+                }
+                print!("cx(S_{i}, S_{j}): {{");
+                for p in &pi_i[j] {
+                    if !s.contains(&u[*p]) {
+                        println!("{p}}}");
+                        break;
+                    }
+                    print!("{p} ")
+                }
+            }
         }
     }
 }
