@@ -11,7 +11,7 @@ fn main() {
     {
         let mut rng = rand::thread_rng();
         for _ in 0..m {
-            let size = rng.gen::<usize>() % n;
+            let size = 1 + rng.gen::<usize>() % (n - 1);
             let mut a = Vec::with_capacity(size);
             for _ in 0..size {
                 a.push(rng.gen::<usize>() % n)
@@ -27,7 +27,7 @@ fn main() {
     }
     let u = u;
 
-    // Compute <_U
+    // Compute <_U by <_Vector
     let order_u;
     {
         let mut u_s = u
@@ -64,7 +64,7 @@ fn main() {
                 }
             }
             if set == all {
-                ans_c.insert(ans.clone());
+                ans_c.insert(ans_i.clone());
                 // println!("{ans_i:?}: {ans:?}");
             }
         }
@@ -90,14 +90,39 @@ fn main() {
                     continue 'out;
                 }
             }
-            ans_s.insert(c);
+            ans_s.insert(c.clone());
         }
         println!("\nS:");
         for (i, s) in ans_s.iter().enumerate() {
             println!("{i}: {s:?}")
         }
     }
-    let ans_s = ans_s;
+    let mut ans_s = ans_s;
+
+    // Compute S_bar
+    println!("\nS_bar:");
+    {
+        let mut ans_s_bar = HashSet::new();
+        for s in ans_s {
+            let mut bar = vec![true; m];
+            for i in 0..m {
+                if s.contains(&i) {
+                    bar[i] = false;
+                }
+            }
+            let s_bar = bar
+                .iter()
+                .enumerate()
+                .filter(|(_, &e)| e)
+                .map(|(i, _)| i)
+                .collect::<Vec<_>>();
+            ans_s_bar.insert(s_bar);
+        }
+        ans_s = ans_s_bar;
+        for (i, s) in ans_s.iter().enumerate() {
+            println!("{i}: {s:?}")
+        }
+    }
 
     // Compute pi(S)
     let mut pi_i = Vec::with_capacity(ans_s.len());
@@ -107,7 +132,7 @@ fn main() {
             let mut pi = Vec::new();
             print!("π (S_{i}): ");
             for i in &order_u {
-                if s.contains(&u[*i]) {
+                if s.contains(i) {
                     pi.push(*i);
                     print!("{i} ");
                 }
@@ -122,19 +147,21 @@ fn main() {
     {
         println!("\ncxs:");
         for (i, s) in ans_s.iter().enumerate() {
-            for j in 0..ans_s.len() {
+            'next: for j in 0..ans_s.len() {
                 if i == j {
                     continue;
                 }
                 print!("cx(S_{i}, S_{j}): {{");
                 for p in &pi_i[j] {
-                    if !s.contains(&u[*p]) {
+                    if !s.contains(p) {
                         println!("{p}}}");
-                        break;
+                        continue 'next;
                     }
                     print!("{p} ")
                 }
+                println!("}}")
             }
+            println!()
         }
     }
 }
