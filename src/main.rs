@@ -21,6 +21,7 @@ fn main() {
             u.push(a)
         }
     }
+    u.sort();
     println!("U:");
     for (i, a) in u.iter().enumerate() {
         println!("{i}: {a:?}")
